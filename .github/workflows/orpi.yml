@@ -1,0 +1,31 @@
+name: Scrape agences Orpi
+
+on:
+  workflow_dispatch:        # lancement manuel depuis l'onglet Actions
+  schedule:
+    - cron: "0 6 1 * *"     # optionnel : le 1er de chaque mois à 06:00 UTC
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Installer les dépendances
+        run: pip install -r requirements.txt
+
+      - name: Lancer le scraper
+        run: python scrape_orpi.py
+
+      - name: Publier le fichier xlsx
+        uses: actions/upload-artifact@v4
+        with:
+          name: orpi-agences
+          path: orpi_agences.xlsx
+          if-no-files-found: error
